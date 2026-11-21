@@ -75,12 +75,80 @@
     return `<p class="dt-rating-row"><span class="dt-stars">${stars}</span><b>${r.score}</b><span class="dt-rating-meta">${esc(r.count)} 条评分 · ${esc(r.label)}</span></p>`;
   }
 
+  function formatClock(mins) {
+    const h24 = Math.floor(mins / 60) % 24;
+    const m = mins % 60;
+    const suffix = h24 < 12 ? 'am' : 'pm';
+    let h = h24 % 12;
+    if (h === 0) h = 12;
+    return `${h}${m ? ':' + String(m).padStart(2, '0') : ''}${suffix}`;
+  }
+
+  function formatRange(startText, endText) {
+    const start = startText.match(/^(\d{1,2})(?::(\d{2}))?(am|pm)?$/i);
+    const end = endText.match(/^(\d{1,2})(?::(\d{2}))?(am|pm)?$/i);
+    if (!start || !end) return null;
+    const sh = Number(start[1]);
+    const sm = Number(start[2] || 0);
+    const ss = (start[3] || '').toLowerCase();
+    const eh = Number(end[1]);
+    const em = Number(end[2] || 0);
+    const es = (end[3] || '').toLowerCase();
+
+    let startMins;
+    if (ss === 'am') startMins = (sh % 12) * 60 + sm;
+    else if (ss === 'pm') startMins = ((sh % 12) + 12) * 60 + sm;
+    else if (sh === 12) startMins = 12 * 60 + sm;
+    else if (sh >= 11) startMins = sh * 60 + sm;
+    else startMins = (sh + 12) * 60 + sm;
+
+    let endMins;
+    if (es === 'am') {
+      endMins = (eh % 12) * 60 + em;
+      if (endMins < startMins) endMins += 24 * 60;
+    } else if (es === 'pm') {
+      endMins = ((eh % 12) + 12) * 60 + em;
+      if (endMins < startMins) endMins += 24 * 60;
+    } else if (eh === 12) {
+      endMins = (startMins < 12 * 60 ? 12 : 24) * 60 + em;
+    } else if (eh > startMins / 60) {
+      endMins = (eh + (eh < 12 ? 12 : 0)) * 60 + em;
+    } else if (eh === startMins / 60) {
+      endMins = (eh + 12) * 60 + em;
+    } else if (eh >= 5) {
+      endMins = (eh + 12) * 60 + em;
+    } else if (startMins < 15 * 60) {
+      endMins = (eh + 12) * 60 + em;
+    } else {
+      endMins = (eh + 24) * 60 + em;
+    }
+
+    return `${formatClock(startMins)}–${formatClock(endMins)}`;
+  }
+
+  function formatTime(text) {
+    return String(text).split(/(\s*&\s*|\s*,\s*)/).map(part => {
+      if (!/\d/.test(part)) return part;
+      const m = part.match(/^(\d{1,2}(?::\d{2})?(?:am|pm)?)\s*[–-]\s*(\d{1,2}(?::\d{2})?(?:am|pm)?)$/i);
+      if (!m) return part;
+      const formatted = formatRange(m[1], m[2]);
+      return formatted || part;
+    }).join('');
+  }
+
+  function formatTimeLoose(text) {
+    return String(text).replace(
+      /(\d{1,2}(?::\d{2})?(?:am|pm)?)\s*[–-]\s*(\d{1,2}(?::\d{2})?(?:am|pm)?)/gi,
+      (all, a, b) => formatRange(a, b) || all
+    );
+  }
+
   function hoursBlock(hoursText) {
     const text = String(hoursText || '').trim();
     if (!text) return '<p class="dt-hours-plain">未提供</p>';
     if (/^check\s+google/i.test(text)) return '<p class="dt-hours-plain">请查 Google Maps</p>';
 
-    const DAY = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:\s*[–-]\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun))?\b/;
+    const DAY = /^((?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:\s*[–-]\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun))?(?:\s*&\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:\s*[–-]\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun))?)*)\s+(.+)$/;
     const parts = text.split(/\s*;\s*|\.\s+(?=[A-Z][A-Za-z ]{1,20}:\s)/);
     const blocks = [];
     let current = { loc: '', rows: [] };
@@ -95,13 +163,26 @@
         part = loc[2].trim();
       }
       const day = part.match(DAY);
-      if (day) current.rows.push({ day: day[0], time: part.slice(day[0].length).trim() });
-      else current.rows.push({ day: '', time: part });
+      if (day) {
+        let time = day[2].trim();
+        let noteText = '';
+        const note = time.match(/\(([^)]*)\)\s*$/);
+        if (note) {
+          noteText = note[1];
+          time = time.slice(0, note.index).trim();
+        }
+        let formatted = formatTime(time);
+        if (formatted === time) formatted = formatTimeLoose(time);
+        if (noteText) formatted += ` (${noteText})`;
+        current.rows.push({ day: day[1], time: formatted });
+      } else {
+        current.rows.push({ day: '', time: formatTimeLoose(part) });
+      }
     }
     if (current.rows.length) blocks.push(current);
 
     const usable = blocks.filter(b => b.rows.some(r => r.day));
-    if (!usable.length) return `<p class="dt-hours-plain">${esc(text)}</p>`;
+    if (!usable.length) return `<p class="dt-hours-plain">${esc(formatTimeLoose(text))}</p>`;
 
     return usable.map(b => `
       ${b.loc ? `<p class="dt-hours-loc">${esc(b.loc)}</p>` : ''}
