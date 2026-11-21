@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2B632">
+<meta name="description" content="珀斯独立炸鸡店推荐：今晚吃哪家、备选、27 家名单和路线。">
+<title>Perth 炸鸡指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--mustard:#F2B632;--red:#C8321E;--paper:#FFFDF6;--ink:#3A2414;--mute:#8C6A4A;--line:#C9B79C;--mono:"Space Mono",ui-monospace,Menlo,Consolas,"PingFang SC","Microsoft YaHei",monospace;--fun:"ZCOOL QingKe HuangYou","PingFang SC",sans-serif}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mustard);color:var(--ink);font:14px/1.6 var(--mono);padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+.wrap{max-width:520px;margin:0 auto;padding:16px 14px 48px}
+a{color:inherit}
+img{display:block;width:100%;height:100%;object-fit:cover}
+.top{display:flex;justify-content:space-between;align-items:center;font-family:"Archivo Black",sans-serif;font-size:14px;letter-spacing:.02em;color:var(--ink);padding:4px 2px 14px}
+.top span{font-family:var(--mono);font-size:11px;background:var(--ink);color:var(--mustard);padding:2px 8px;border-radius:20px}
+.ticket{background:var(--paper);padding:18px 16px 22px;position:relative;margin-bottom:26px;filter:drop-shadow(0 2px 0 rgba(58,36,20,.15))}
+.ticket::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;background:linear-gradient(-45deg,transparent 7px,var(--paper) 0) 0 0/14px 10px,linear-gradient(45deg,transparent 7px,var(--paper) 0) 0 0/14px 10px}
+.c{text-align:center}
+.small{font-size:11px;color:var(--mute)}
+.dash{border:0;border-top:1.5px dashed var(--line);margin:12px 0}
+.big{font-family:var(--fun);font-size:44px;line-height:1.05;color:var(--red);margin:6px 0 4px}
+.photo{aspect-ratio:4/3;border:3px solid var(--red);overflow:hidden;margin:12px 0;cursor:pointer;background:#f3e6cf}
+.li{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.li .n{flex:1;display:flex;gap:6px;min-width:0}
+.li .n::after{content:"";flex:1;border-bottom:1.5px dotted var(--line);transform:translateY(-6px)}
+.li b{font-weight:700}
+.total{display:flex;justify-content:space-between;font-weight:700;font-size:16px}
+.bar{height:38px;margin:14px auto 4px;width:70%;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 7px,transparent 7px 9px,var(--ink) 9px 10px,transparent 10px 13px)}
+.cta{display:flex;align-items:center;justify-content:center;min-height:52px;background:var(--red);color:var(--paper);text-decoration:none;font-family:var(--fun);font-size:22px;border-radius:12px;margin-top:6px;border:0;width:100%;cursor:pointer}
+.cta.ghost{background:none;color:var(--ink);border:2px solid var(--ink);font-size:18px;min-height:46px}
+h2.sec{font-family:var(--fun);font-size:30px;line-height:1.1;margin:8px 2px 12px;color:var(--ink)}
+h2.sec small{display:block;font-family:var(--mono);font-size:12px;color:var(--ink);opacity:.75}
+.mini{display:grid;grid-template-columns:96px 1fr;gap:12px;cursor:pointer;align-items:start}
+.mini + .mini{margin-top:14px;padding-top:14px;border-top:1.5px dashed var(--line)}
+.mini .ph{aspect-ratio:1;border:2px solid var(--ink);overflow:hidden}
+.stamp{display:inline-block;font-size:11px;color:var(--red);border:1.5px solid var(--red);padding:0 6px;transform:rotate(-3deg);margin-bottom:4px}
+.mini h3{font-family:"Archivo Black",var(--fun);font-size:17px;margin:0;line-height:1.2;font-weight:400}
+.mini p{margin:4px 0 0;font-size:13px}
+.cmp{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.cmp th,.cmp td{text-align:left;vertical-align:top;padding:7px 4px;border-bottom:1.5px dashed var(--line)}
+.cmp th{font-size:12px}
+.cmp td:first-child,.cmp th:first-child{width:46px;color:var(--mute);padding-left:0}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:0 14px 14px;margin:0 -14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:2px solid var(--ink);background:var(--mustard);font:inherit;font-size:13px;color:var(--ink);cursor:pointer;border-radius:4px;font-weight:700}
+.chip svg{width:17px;height:17px;flex:none}
+.chip.on{background:var(--ink);color:var(--mustard)}
+.menu h3.cat{font-family:"Archivo Black",sans-serif;font-weight:400;font-size:13px;letter-spacing:.1em;background:var(--ink);color:var(--paper);display:inline-block;padding:1px 8px;margin:16px 0 4px}
+.menu h3.cat:first-child{margin-top:0}
+.item{padding:10px 0;border-bottom:1.5px dashed var(--line);cursor:pointer;display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center}
+.item .th{width:52px;height:52px;border:1.5px solid var(--ink);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--fun);font-size:22px;background:#f3e6cf}
+.item .li{font-size:14px}
+.item .d{font-size:12px;color:var(--mute);margin:2px 0 0}
+.spice{color:var(--red);letter-spacing:1px}
+.combo{cursor:default}
+.combo h3{font-family:var(--fun);font-size:24px;margin:0;color:var(--red);font-weight:400}
+.combo .stop{display:grid;grid-template-columns:52px 1fr;gap:8px;padding:8px 0;border-bottom:1.5px dashed var(--line);cursor:pointer}
+.combo .stop b{display:block}
+.combo .stop span{font-size:12px;color:var(--mute)}
+footer{font-size:11px;text-align:center;color:var(--ink);opacity:.8;margin-top:10px}
+#sheet{position:fixed;inset:0;background:rgba(58,36,20,.55);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+#sheet.open{opacity:1;pointer-events:auto}
+.sheet-panel{position:absolute;left:10px;right:10px;bottom:0;max-height:90vh;overflow-y:auto;background:var(--paper);transform:translateY(100%);transition:transform .25s ease-out;max-width:500px;margin:0 auto;border-top:6px solid var(--red)}
+#sheet.open .sheet-panel{transform:none}
+.sheet-close{position:sticky;top:0;float:right;margin:8px 8px 0 0;width:40px;height:40px;border:2px solid var(--ink);background:var(--paper);font:700 18px var(--mono);cursor:pointer;z-index:2;color:var(--ink)}
+.dt-gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;padding:12px 12px 0}
+.dt-gallery img{flex:none;width:84%;aspect-ratio:4/3;height:auto;scroll-snap-align:start;border:2px solid var(--ink)}
+.dt-gallery img:only-child{width:100%}
+.dt-noimg{margin:56px 12px 0;padding:24px;border:2px dashed var(--line);text-align:center;color:var(--mute)}
+.dt-body{padding:12px 16px 32px}
+.dt-tags{margin:0;display:flex;flex-wrap:wrap;gap:6px}
+.dt-tags span{font-size:11px;border:1.5px solid var(--ink);padding:0 6px}
+.dt-name{font-family:"Archivo Black",var(--fun);font-weight:400;font-size:24px;margin:10px 0 0;line-height:1.15}
+.dt-zh{margin:0;color:var(--mute);font-size:13px}
+.dt-why{font-size:14px;margin:10px 0 14px}
+.dt-actions{display:flex;gap:8px;flex-wrap:wrap}
+.dt-btn{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:2px solid var(--ink);text-decoration:none;font-size:13px;font-weight:700}
+.dt-btn.primary{background:var(--red);border-color:var(--red);color:var(--paper)}
+.dt-body h3{font-size:11px;letter-spacing:.12em;color:var(--mute);margin:16px 0 4px;border-top:1.5px dashed var(--line);padding-top:10px}
+.dt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dt-grid h3{border:0;padding:0;margin-top:14px}
+.dt-grid p{margin:0}.dt-grid small{display:block;color:var(--mute);font-size:11px}
+.dt-list,.dt-hours{margin:0;padding-left:18px}
+.dt-watch{margin:0;color:var(--red)}
+.dt-small,.dt-rating{font-size:11px!important;color:var(--mute)}
+/* three views */
+.view{display:none}
+.view.on{display:block}
+/* bottom tab bar */
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);max-width:520px;margin:0 auto;background:var(--paper);border-top:2px solid var(--ink);padding-bottom:env(safe-area-inset-bottom)}
+#tabbar .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:56px;background:var(--paper);color:var(--ink);text-decoration:none;font-family:var(--fun);font-size:17px;line-height:1}
+#tabbar .tab small{font-family:var(--mono);font-size:10px;letter-spacing:.08em}
+#tabbar .tab[aria-current="page"]{background:var(--ink);color:var(--mustard)}
+/* map */
+.map-wrap{position:relative;margin-bottom:18px}
+#map{height:calc(100vh - 250px);min-height:360px;z-index:0;border:2px solid var(--ink);background:#f3e6cf}
+.map-legend{position:absolute;left:10px;bottom:10px;z-index:500;background:var(--paper);border:2px solid var(--ink);padding:6px 8px;display:grid;grid-template-columns:auto auto;gap:2px 7px;font-size:11px;line-height:1.5}
+.map-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--paper);justify-self:center;align-self:center}
+.map-pop{font:12px/1.55 var(--mono);color:var(--ink);min-width:150px}
+.map-pop b{font-family:"Archivo Black",var(--fun);font-weight:400;font-size:14px}
+.map-open{margin-top:6px;min-height:34px;padding:0 10px;border:2px solid var(--ink);background:var(--paper);font:700 12px var(--mono);cursor:pointer;color:var(--ink)}
+.map-fallback{padding:24px 16px;font-size:12px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">PERTH FRIED CHICKEN CO.<span id="date"></span></div>
+
+  <section class="view" id="view-picks">
+    <section class="ticket" id="hero"></section>
+
+    <h2 class="sec">其他推荐<small>换一家看看</small></h2>
+    <section class="ticket" id="alts"></section>
+
+    <h2 class="sec">三张小票对一下<small>对比</small></h2>
+    <section class="ticket"><table class="cmp" id="cmp"></table></section>
+
+    <a class="cta ghost" href="#all" id="all-cta"></a>
+  </section>
+
+  <section class="view" id="view-all">
+    <h2 class="sec">完整菜单<small id="count"></small></h2>
+    <div class="chips" id="chips"></div>
+    <section class="ticket menu" id="list"></section>
+  </section>
+
+  <section class="view" id="view-map">
+    <h2 class="sec">地图<small><span id="map-count">27</span> 家 · 点圆点看详情</small></h2>
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="map-legend">
+        <i style="background:#C8321E"></i><span>核心</span>
+        <i style="background:#3A2414"></i><span>顺路</span>
+        <i style="background:#8C6A4A"></i><span>补充</span>
+        <i style="background:#A9761A"></i><span>酒吧</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-routes">
+    <h2 class="sec">套餐路线<small>一次吃几家</small></h2>
+    <section id="routes"></section>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<nav id="tabbar">
+  <a class="tab" data-tab="picks" href="#picks">推荐<small>PICKS</small></a>
+  <a class="tab" data-tab="all" href="#all">全部<small>MENU</small></a>
+  <a class="tab" data-tab="map" href="#map">地图<small>MAP</small></a>
+  <a class="tab" data-tab="routes" href="#routes">路线<small>COMBOS</small></a>
+</nav>
+
+<div id="sheet" role="dialog" aria-modal="true"><div class="sheet-panel"><button class="sheet-close" aria-label="关闭">×</button><div class="sheet-content"></div></div></div>
+
+<script src="data.js"></script>
+<script src="shared.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const { FC, map, esc, TIER, FILTERS, spiceLevel, closedDay } = FCX;
+const P = FC.picks;
+const pick = map[P.top.id];
+const chili = v => '<span class="spice">' + '▲'.repeat(spiceLevel(v)) + '</span>';
+document.getElementById('date').textContent = FC.updated;
+
+document.getElementById('hero').innerHTML = `
+  <p class="c small">ORDER #001 · ${FC.updated} · TABLE FOR 2</p>
+  <hr class="dash">
+  <p class="big">今晚<br>吃这家。</p>
+  <div class="photo" data-open="${pick.id}"><img src="${esc(pick.image)}" alt="${esc(pick.name)}"></div>
+  <div class="li"><span class="n"><b>${esc(pick.name)}</b></span><span>${esc(pick.suburb.split('/')[0].trim())}</span></div>
+  <p class="small" style="margin:2px 0 10px">${esc(P.top.reason)}</p>
+  ${pick.signature.slice(0, 3).map(s => `<div class="li"><span class="n">${esc(s)}</span><span>x1</span></div>`).join('')}
+  <hr class="dash">
+  <div class="total"><span>人均</span><span>${esc(pick.price.split(';')[0].replace(' pp', ''))}</span></div>
+  <div class="li small" style="margin-top:4px"><span>休息日</span><span>${esc(closedDay(pick) || '每天开')}</span></div>
+  <div class="bar"></div><p class="c small">THANK YOU · 吃完记得打分</p>
+  <a class="cta" href="${esc(pick.maps)}" target="_blank" rel="noopener">带我去 →</a>
+  <button class="cta ghost" data-open="${pick.id}" style="margin-top:8px">看完整小票</button>`;
+
+document.getElementById('alts').innerHTML = P.alts.map(a => { const v = map[a.id]; return `
+  <article class="mini" data-open="${v.id}">
+    <div class="ph"><img src="${esc(v.image)}" alt="${esc(v.name)}" loading="lazy"></div>
+    <div><span class="stamp">${esc(a.label)}</span><h3>${esc(v.name)}</h3><p>${esc(a.reason)}</p><p class="small">${esc(v.price.split(';')[0])} · ${chili(v)}</p></div>
+  </article>`; }).join('');
+
+const ids = [P.top.id, ...P.alts.map(a => a.id)];
+document.getElementById('cmp').innerHTML =
+  `<tr><th></th>${ids.map(id => `<th>${esc(map[id].name.split(' ').slice(0, 2).join(' '))}</th>`).join('')}</tr>` +
+  P.compare.map(r => `<tr><td>${esc(r.k)}</td>${ids.map(id => `<td>${esc(r[id])}</td>`).join('')}</tr>`).join('');
+
+document.getElementById('all-cta').textContent = `看全部 ${FC.venues.length} 家 →`;
+
+let cur = 'all';
+const chips = document.getElementById('chips');
+const countEl = document.getElementById('count');
+const ICONS = {
+  all: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg>',
+  core: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.2l2.6 5.6 6.1.7-4.5 4.1 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.1 6.1-.7z"/></svg>',
+  spicy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 6.4c3.4 2.2 4.7 5.8 3.1 8.8-1.5 2.9-5.1 4-7.9 2.5-2.4-1.3-3.4-4-2.5-6.4.7-1.8 2.3-2.7 3.8-2.1" fill="#C8321E" stroke="#3A2414" stroke-width="1.2" stroke-linejoin="round"/><path d="M13.8 6.6c.2-1.7 1.2-2.8 2.9-3.1" fill="none" stroke="#3A2414" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  korean: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.2" y="5" width="19.6" height="14" rx="1.4" fill="#FFFDF6" stroke="#3A2414" stroke-width="1.3"/><circle cx="12" cy="12" r="4.1" fill="#C8321E"/><path d="M7.9 12a4.1 4.1 0 0 0 8.2 0 2.05 2.05 0 0 1-4.1 0 2.05 2.05 0 0 0-4.1 0z" fill="#0047A0"/><g stroke="#3A2414" stroke-width=".85"><path d="M4.2 7.2h3M4.2 8.4h3M4.2 9.6h3M16.8 14.4h3M16.8 15.6h3M16.8 16.8h3M16.8 7.2h3M16.8 8.4h3M16.8 9.6h3M4.2 14.4h3M4.2 15.6h3M4.2 16.8h3"/></g></svg>',
+  group: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8.5" r="2.8"/><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5"/><circle cx="16.6" cy="9.7" r="2.2"/><path d="M15.2 13.6c2.6.2 4.6 2.3 4.6 5"/></svg>',
+  late: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.6 3.6a8.2 8.2 0 1 0 4.8 12.8 6.5 6.5 0 0 1-4.8-12.8z" fill="currentColor"/></svg>',
+  budget: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v10M14.4 8.8c-.5-.7-1.4-1.1-2.4-1.1-1.4 0-2.5.8-2.5 2s1 1.8 2.5 2.1c1.6.3 2.6 1 2.6 2.2 0 1.3-1.1 2.1-2.6 2.1-1.1 0-2.1-.4-2.6-1.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  halal: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.8 4.4a8 8 0 1 0 0 15.2 6.3 6.3 0 0 1 0-15.2z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M17.9 8.7l.6 1.4 1.5.1-1.2.9.4 1.4-1.3-.8-1.2.8.4-1.4-1.2-.9 1.5-.1z" fill="currentColor"/></svg>',
+};
+chips.innerHTML = FILTERS.map(f => `<button class="chip${f.key === cur ? ' on' : ''}" data-f="${f.key}">${ICONS[f.key] || ''}<span>${f.label}</span></button>`).join('');
+chips.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; cur = b.dataset.f; chips.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); renderList(); });
+const CATS = [['core', 'SIGNATURE · 核心'], ['detour', 'SIDES · 顺路'], ['extended', 'EXTRA · 补充'], ['nightcap', 'BAR · 酒吧/早午餐']];
+function renderList() {
+  const f = FILTERS.find(x => x.key === cur);
+  const shown = FC.venues.filter(v => f.test(v)).length;
+  countEl.textContent = `${shown} 家 · 点名字看详情`;
+  const html = CATS.map(([t, label]) => {
+    const vs = FC.venues.filter(v => v.tier === t && f.test(v));
+    if (!vs.length) return '';
+    return `<h3 class="cat">${label}</h3>` + vs.map(v => `
+      <div class="item" data-open="${v.id}">
+        <div class="th">${v.image ? `<img src="${esc(v.image)}" alt="" loading="lazy">` : esc(v.name[0])}</div>
+        <div><div class="li"><span class="n"><b>${esc(v.name)}</b></span><span>$${v.priceFrom}+</span></div>
+        <p class="d">${esc(v.styleZh)} · ${esc(v.suburb)} ${chili(v)}${v.chain ? ' · 本地连锁' : ''}</p></div>
+      </div>`).join('');
+  }).join('');
+  document.getElementById('list').innerHTML = html || '<p class="c small">这个筛选下没有店</p>';
+}
+renderList();
+
+document.getElementById('routes').innerHTML = FC.routes.map(r => `
+  <div class="ticket combo"><h3>套餐 ${r.id} · ${esc(r.name)}</h3><p class="small" style="margin:0 0 6px">${esc(r.mode)}</p>
+  ${r.stops.map(s => `<div class="stop" data-open="${s.id}"><span style="color:var(--red);font-size:13px">${s.time}</span><div><b>${esc(map[s.id].name)}</b><span>${esc(s.what)}</span></div></div>`).join('')}
+  <p class="small" style="margin:8px 0 0">${esc(r.note)}</p></div>`).join('');
+
+document.getElementById('foot').innerHTML = `价格和营业时间核对于 ${FC.updated}，出发前再查 Google Maps。<br>图片来自店家官网和本地媒体，仅作私人分享。`;
+
+let leafletMap = null;
+function initMap() {
+  const box = document.getElementById('map');
+  if (leafletMap) { leafletMap.invalidateSize(); return; }
+  if (typeof L === 'undefined') {
+    box.innerHTML = '<p class="map-fallback">地图没有加载：这个页面需要联网才能显示地图。</p>';
+    return;
+  }
+  const colors = { core: '#C8321E', detour: '#3A2414', extended: '#8C6A4A', nightcap: '#A9761A' };
+  leafletMap = L.map(box, { scrollWheelZoom: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+  }).addTo(leafletMap);
+  const points = [];
+  FC.venues.forEach(v => {
+    if (typeof v.lat !== 'number' || typeof v.lng !== 'number') return;
+    L.circleMarker([v.lat, v.lng], {
+      radius: 7.5, weight: 2, color: '#FFFDF6',
+      fillColor: colors[v.tier] || '#3A2414', fillOpacity: 1,
+    }).addTo(leafletMap).bindPopup(
+      `<div class="map-pop"><b>${esc(v.name)}</b><br>${esc(v.styleZh)} · ${esc(v.suburb)}<br>$${v.priceFrom}+ · 人均 ${esc(v.price.split(';')[0])}<br><button class="map-open" data-open="${v.id}">看详情</button></div>`
+    );
+    points.push([v.lat, v.lng]);
+  });
+  if (points.length) leafletMap.fitBounds(points, { padding: [26, 26], maxZoom: 13 });
+  document.getElementById('map-count').textContent = points.length;
+}
+
+const VIEWS = ['picks', 'all', 'map', 'routes'];
+function route() {
+  const name = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'picks';
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + name));
+  document.querySelectorAll('#tabbar .tab').forEach(t => {
+    if (t.dataset.tab === name) t.setAttribute('aria-current', 'page');
+    else t.removeAttribute('aria-current');
+  });
+  if (name === 'map') requestAnimationFrame(initMap);
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+route();
+
+FCX.initSheet();
+</script>
+</body>
+</html>
