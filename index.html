@@ -69,9 +69,13 @@ footer{font-size:11px;text-align:center;color:var(--ink);opacity:.8;margin-top:1
 .sheet-panel{position:absolute;left:10px;right:10px;bottom:0;max-height:90vh;overflow-y:auto;background:var(--paper);transform:translateY(100%);transition:transform .25s ease-out;max-width:500px;margin:0 auto;border-top:6px solid var(--red)}
 #sheet.open .sheet-panel{transform:none}
 .sheet-close{position:sticky;top:0;float:right;margin:8px 8px 0 0;width:40px;height:40px;border:2px solid var(--ink);background:var(--paper);font:700 18px var(--mono);cursor:pointer;z-index:2;color:var(--ink)}
-.dt-gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;padding:12px 12px 0}
-.dt-gallery img{flex:none;width:84%;aspect-ratio:4/3;height:auto;scroll-snap-align:start;border:2px solid var(--ink)}
-.dt-gallery img:only-child{width:100%}
+.dt-photos{padding:12px 12px 0}
+.dt-photo-main{display:block;position:relative;width:100%;padding:0;border:2px solid var(--ink);background:#f3e6cf;cursor:pointer}
+.dt-photo-main img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.dt-photo-count{position:absolute;right:6px;bottom:6px;background:var(--ink);color:var(--paper);font:11px var(--mono);padding:3px 7px}
+.dt-photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px}
+.dt-photo-thumb{padding:0;border:2px solid var(--ink);background:#f3e6cf;cursor:pointer;overflow:hidden}
+.dt-photo-thumb img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
 .dt-note{margin:6px 12px 0;font-size:11px;color:var(--mute)}
 .dt-noimg{margin:56px 12px 0;padding:24px;border:2px dashed var(--line);text-align:center;color:var(--mute)}
 .dt-body{padding:12px 16px 32px}
@@ -87,9 +91,28 @@ footer{font-size:11px;text-align:center;color:var(--ink);opacity:.8;margin-top:1
 .dt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .dt-grid h3{border:0;padding:0;margin-top:14px}
 .dt-grid p{margin:0}.dt-grid small{display:block;color:var(--mute);font-size:11px}
-.dt-list,.dt-hours{margin:0;padding-left:18px}
+.dt-rating-row{display:flex;align-items:center;gap:6px;margin:6px 0 8px;font-size:13px}
+.dt-rating-row b{font-size:15px}
+.dt-rating-row.empty{color:var(--mute);font-size:12px}
+.dt-stars{display:inline-flex;gap:1px}
+.dt-star svg{width:13px;height:13px;fill:var(--line)}
+.dt-star.on svg{fill:var(--red)}
+.dt-rating-meta{color:var(--mute);font-size:11px}
+.dt-list{margin:0;padding-left:18px}
+.dt-list li{display:flex;justify-content:space-between;gap:12px}
+.dt-item-price{font-variant-numeric:tabular-nums;color:var(--red);white-space:nowrap}
+.dt-item-note{float:right;font:400 11px var(--mono);color:var(--mute)}
+.dt-price-note{margin:4px 0 0;font-size:11px;color:var(--mute)}
+.dt-hours{margin:0}
+.dt-hours-loc{margin:6px 0 2px;font-size:11px;letter-spacing:.08em;color:var(--mute);text-transform:uppercase}
+.dt-hour-row{display:grid;grid-template-columns:96px 1fr;gap:6px;padding:1px 0}
+.dt-hour-day{color:var(--mute)}
+.dt-hour-time{font-variant-numeric:tabular-nums}
+.dt-hours-plain{margin:0;color:var(--mute)}
+.dt-address{display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;min-height:40px;padding:6px 8px;border:1.5px dashed var(--line);background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.dt-copy-label{flex:none;font-size:11px;background:var(--ink);color:var(--paper);padding:2px 7px;border-radius:3px}
 .dt-watch{margin:0;color:var(--red)}
-.dt-small,.dt-rating{font-size:11px!important;color:var(--mute)}
+.dt-small{font-size:11px!important;color:var(--mute)}
 /* three views */
 .view{display:none}
 .view.on{display:block}
@@ -98,6 +121,14 @@ footer{font-size:11px;text-align:center;color:var(--ink);opacity:.8;margin-top:1
 #tabbar .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:56px;background:var(--paper);color:var(--ink);text-decoration:none;font-family:var(--fun);font-size:17px;line-height:1}
 #tabbar .tab small{font-family:var(--mono);font-size:10px;letter-spacing:.08em}
 #tabbar .tab[aria-current="page"]{background:var(--ink);color:var(--mustard)}
+/* full-screen photo viewer */
+#photo-view{position:fixed;inset:0;z-index:40;background:rgba(24,14,6,.96);display:none;align-items:center;justify-content:center}
+#photo-view.open{display:flex}
+.pv-img{max-width:100%;max-height:82vh;object-fit:contain;border:2px solid var(--paper)}
+.pv-close{position:absolute;top:14px;right:14px;width:44px;height:44px;border:2px solid var(--paper);background:transparent;color:var(--paper);font:700 22px var(--mono);cursor:pointer}
+.pv-prev,.pv-next{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:56px;border:2px solid var(--paper);background:transparent;color:var(--paper);font:700 26px var(--mono);cursor:pointer}
+.pv-prev{left:10px}.pv-next{right:10px}
+.pv-count{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:var(--paper);font:12px var(--mono)}
 /* map */
 .map-wrap{position:relative;margin-bottom:18px}
 #map{height:calc(100vh - 250px);min-height:360px;z-index:0;border:2px solid var(--ink);background:#f3e6cf}
@@ -162,8 +193,16 @@ footer{font-size:11px;text-align:center;color:var(--ink);opacity:.8;margin-top:1
 
 <div id="sheet" role="dialog" aria-modal="true"><div class="sheet-panel"><button class="sheet-close" aria-label="关闭">×</button><div class="sheet-content"></div></div></div>
 
-<script src="data.js?v=20261121b"></script>
-<script src="shared.js?v=20261121b"></script>
+<div id="photo-view" role="dialog" aria-modal="true" aria-label="照片">
+  <button class="pv-close" aria-label="关闭">×</button>
+  <button class="pv-prev" aria-label="上一张">‹</button>
+  <img class="pv-img" alt="">
+  <button class="pv-next" aria-label="下一张">›</button>
+  <p class="pv-count"></p>
+</div>
+
+<script src="data.js?v=20261121d"></script>
+<script src="shared.js?v=20261121d"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const { FC, map, esc, TIER, FILTERS, spiceLevel, closedDay } = FCX;
