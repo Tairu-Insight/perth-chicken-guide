@@ -54,7 +54,8 @@
   function detailHTML(v) {
     const imgs = [v.image, ...(v.imageGallery || [])].filter(Boolean);
     const gallery = imgs.length
-      ? `<div class="dt-gallery">${imgs.map(s => `<img src="${esc(s)}" alt="${esc(v.name)}" loading="lazy">`).join('')}</div>`
+      ? `<div class="dt-gallery">${imgs.map(s => `<img src="${esc(s)}" alt="${esc(v.name)}">`).join('')}</div>` +
+        (v.imageKind === 'map' ? '<p class="dt-note">地图位置 · 暂无店家照片</p>' : '')
       : `<div class="dt-noimg">暂无照片 · 到店补拍</div>`;
     const hours = (v.hours || '').split(/;\s*|\.\s+(?=[A-Z])/).map(h => `<li>${esc(h)}</li>`).join('');
     const tags = [v.styleZh, v.suburb, TIER[v.tier], v.chain ? '本地连锁' : '', halalLabel(v)].filter(Boolean);

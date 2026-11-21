@@ -72,6 +72,7 @@ footer{font-size:11px;text-align:center;color:var(--ink);opacity:.8;margin-top:1
 .dt-gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;padding:12px 12px 0}
 .dt-gallery img{flex:none;width:84%;aspect-ratio:4/3;height:auto;scroll-snap-align:start;border:2px solid var(--ink)}
 .dt-gallery img:only-child{width:100%}
+.dt-note{margin:6px 12px 0;font-size:11px;color:var(--mute)}
 .dt-noimg{margin:56px 12px 0;padding:24px;border:2px dashed var(--line);text-align:center;color:var(--mute)}
 .dt-body{padding:12px 16px 32px}
 .dt-tags{margin:0;display:flex;flex-wrap:wrap;gap:6px}
@@ -104,6 +105,7 @@ footer{font-size:11px;text-align:center;color:var(--ink);opacity:.8;margin-top:1
 .map-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--paper);justify-self:center;align-self:center}
 .map-pop{font:12px/1.55 var(--mono);color:var(--ink);min-width:150px}
 .map-pop b{font-family:"Archivo Black",var(--fun);font-weight:400;font-size:14px}
+.map-pop-img{width:100%;height:92px;object-fit:cover;border:1.5px solid var(--ink);margin-bottom:6px}
 .map-open{margin-top:6px;min-height:34px;padding:0 10px;border:2px solid var(--ink);background:var(--paper);font:700 12px var(--mono);cursor:pointer;color:var(--ink)}
 .map-fallback{padding:24px 16px;font-size:12px;color:var(--mute)}
 </style>
@@ -223,7 +225,7 @@ function renderList() {
     if (!vs.length) return '';
     return `<h3 class="cat">${label}</h3>` + vs.map(v => `
       <div class="item" data-open="${v.id}">
-        <div class="th">${v.image ? `<img src="${esc(v.image)}" alt="" loading="lazy">` : esc(v.name[0])}</div>
+        <div class="th">${v.image && v.imageKind !== 'map' ? `<img src="${esc(v.image)}" alt="" loading="lazy">` : esc(v.name[0])}</div>
         <div><div class="li"><span class="n"><b>${esc(v.name)}</b></span><span>$${v.priceFrom}+</span></div>
         <p class="d">${esc(v.styleZh)} · ${esc(v.suburb)} ${chili(v)}${v.chain ? ' · 本地连锁' : ''}</p></div>
       </div>`).join('');
@@ -260,7 +262,7 @@ function initMap() {
       radius: 7.5, weight: 2, color: '#FFFDF6',
       fillColor: colors[v.tier] || '#3A2414', fillOpacity: 1,
     }).addTo(leafletMap).bindPopup(
-      `<div class="map-pop"><b>${esc(v.name)}</b><br>${esc(v.styleZh)} · ${esc(v.suburb)}<br>$${v.priceFrom}+ · 人均 ${esc(v.price.split(';')[0])}<br><button class="map-open" data-open="${v.id}">看详情</button></div>`
+      `<div class="map-pop"><img class="map-pop-img" src="${esc(v.image)}" alt=""><b>${esc(v.name)}</b><br>${esc(v.styleZh)} · ${esc(v.suburb)}<br>$${v.priceFrom}+ · 人均 ${esc(v.price.split(';')[0])}<br><button class="map-open" data-open="${v.id}">看详情</button></div>`
     );
     points.push([v.lat, v.lng]);
   });
